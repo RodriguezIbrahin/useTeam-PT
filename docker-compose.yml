@@ -1,0 +1,49 @@
+services:
+  app:
+    build: ./app
+    ports:
+      - "3001:${FRONT_PORT}"
+    environment:
+      PORT: ${FRONT_PORT}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL}
+    volumes:
+      - ./app:/app
+      - /app/node_modules
+
+  backend:
+    build: ./backend
+    ports:
+      - "8080:${BACK_PORT}"
+    environment:
+      PORT: ${BACK_PORT}
+      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL}
+      MONGODB_URI: ${MONGODB_URI}
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      - db
+
+  db:
+    image: mongo:8.0.15
+    ports:
+      - "27017:${MONGO_PORT}"
+    volumes:
+      - db_data:/data/db
+
+  mongo-express:
+    image: mongo-express:latest
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: ${MONGO_HOST}
+      ME_CONFIG_MONGODB_PORT: ${MONGO_PORT}
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USER}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD}
+    depends_on:
+      - db
+
+volumes:
+  db_data:

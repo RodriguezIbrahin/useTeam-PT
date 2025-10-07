@@ -1,0 +1,21 @@
+{
+  "name": "useteam-pt",
+  "version": "1.0.0",
+  "description": "Desarrollar una aplicación tipo **Trello** que permita la gestión de tareas mediante un **tablero Kanban** con soporte para **colaboración en tiempo real**. El sistema debe incluir columnas personalizables, tarjetas movibles y funcionalidad de drag & drop fluida.",
+
+  "scripts": {
+    "init:docker": "sh ./scripts/set-up-docker.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cristian-Massa/useTeam-PT.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Cristian-Massa/useTeam-PT/issues"
+  },
+  "homepage": "https://github.com/Cristian-Massa/useTeam-PT#readme"
+}
