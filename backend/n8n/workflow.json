@@ -1,0 +1,92 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "kanban-export",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "id": "8dca26ef-1a88-4455-97c7-6438c1b1b35f",
+      "webhookId": "e8e01e2d-73c1-4855-8669-2a9648c45b4e"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Make CSV - código robusto para n8n Function node\n\n// n8n Function node expone la variable `items` (array de items).\n// Normalmente trabajaremos con el primer item: items[0].json\nconst item = (items && items[0] && items[0].json) ? items[0].json : {};\n\n// Extraer board y email intentando varias rutas posibles\nconst board = (item.body && item.body.board) ? item.body.board : (item.board || null);\nconst email = (item.body && item.body.email) ? item.body.email : (item.email || null);\n\n// Validación básica\nif (!board || !Array.isArray(board.columns)) {\n  // Devolver un error legible para n8n (no romper el proceso)\n  // Podés comentar la siguiente línea para que en lugar de error devuelva un CSV vacío\n  throw new Error('Make CSV: board.columns not found in the incoming payload. Payload keys: ' + Object.keys(item).join(','));\n  // Alternativa (descomentar si preferís no lanzar error):\n  // return [{ json: { csv: '', email } }];\n}\n\n// Construir filas\nconst rows = [];\nboard.columns.forEach(col => {\n  const tasks = (col && Array.isArray(col.tasks)) ? col.tasks : [];\n  tasks.forEach(task => {\n    rows.push({\n      id: task._id || task.id || '',\n      title: task.title || '',\n      description: task.description || '',\n      column: col.title || col.id || '',\n      createdAt: task.createdAt || ''\n    });\n  });\n});\n\n// Cabecera y generación CSV (escapando comillas con JSON.stringify para campos textuales)\nconst header = ['id','title','description','column','createdAt'];\n\n// Mapear filas a líneas CSV\nconst csvLines = rows.map(r => {\n  // JSON.stringify sobre campos de texto asegura comillas y escapes correctos\n  return [\n    r.id,\n    JSON.stringify(r.title),\n    JSON.stringify(r.description),\n    JSON.stringify(r.column),\n    r.createdAt\n  ].join(',');\n});\n\n// Construir CSV final\nconst csv = [header.join(',')].concat(csvLines).join('\\n');\n\n// Devolver formato que espera n8n (un array de items)\nreturn [{ json: { csv, email } }];\n"
+      },
+      "name": "Make CSV",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [208, 0],
+      "id": "e58a069c-f4b3-44c4-aaac-89918277ac07"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3000/api/export/send-email",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "email",
+              "value": "={{$json[\"email\"]}}"
+            },
+            {
+              "name": "csv",
+              "value": "={{$json[\"csv\"]}}"
+            },
+            {
+              "name": "fileName",
+              "value": "backlog.csv"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [416, 0],
+      "id": "fc6a1322-68ea-4489-9da3-e1c46211e296",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Make CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make CSV": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "04aab5c4-4b12-4081-8cbd-012818843593",
+  "meta": {
+    "instanceId": "a5cb8b82efcc0535cfbb5f6d210ea8d8ef1014dd698bc88c7f83ce45c403de03"
+  },
+  "id": "gc2DstEI2XkzgC3u",
+  "tags": []
+}

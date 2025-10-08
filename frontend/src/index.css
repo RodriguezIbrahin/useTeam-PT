@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global defaults compatibles con Tailwind */
+:root {
+  --app-max-width: 1280px;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Body neutral (Tailwind already handles most colors via classes) */
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh; /* fallback if Tailwind resolves it */
+  color: theme("colors.gray.800");
+  line-height: 1.5;
+}
+
+/* Headings defaults (don't force huge sizes here) */
+h1,
+h2,
+h3 {
+  margin: 0;
+}
+
+/* Inputs & buttons: reset risky global styles so Tailwind classes control them */
+input,
+textarea,
+select,
+button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+}
+
+/* Remove any global button background rule you had */
+button {
+  border-radius: 0;
+}
+
+/* Small helper for centered app container (optional) */
+.app-container {
+  max-width: var(--app-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}

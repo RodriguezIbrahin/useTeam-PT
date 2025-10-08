@@ -1,0 +1,14 @@
+/* app.css (simple) */
+.root-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8fafc; /* Tailwind gray-50 */
+}
+
+/* evita sombras/padding extra si no lo quieres */
+.header-fixed {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
